@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators'; 
 @Injectable({
   providedIn: 'root'
 })
@@ -13,11 +13,21 @@ export class UserService {
 
   // Fetch all users
   getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(this.userApiUrl);
+    return this.http.get<any[]>(this.userApiUrl).pipe(
+      catchError(this.handleError)
+    );
   }
 
   // Fetch posts by user ID
   getPostsByUser(userId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.postsApiUrl}?userId=${userId}`);
+    return this.http.get<any[]>(`${this.postsApiUrl}?userId=${userId}`).pipe(
+      catchError(this.handleError) // Catch errors and handle them
+    );
+  }
+
+  private handleError(error: any) {
+    console.error('An error occurred:', error); // Log the error for debugging purposes
+    // Return a user-friendly error message
+    return throwError('Something went wrong while fetching data. Please try again later.');
   }
 }
